@@ -1,166 +1,138 @@
-# 3D molekuly – plugin pro PrusaSlicer 3.0
+# 3D Molecules – PrusaSlicer 3.0 plugin
 
-Zjednodušená offline verze webové aplikace [3dmolekuly.vscht.cz](https://3dmolekuly.vscht.cz)
-přímo v PrusaSlicer. Vytvoří vícebarevný 3D model molekuly připravený k tisku.
+A simplified, offline version of the web app [3dmolekuly.vscht.cz](https://3dmolekuly.vscht.cz)
+right inside PrusaSlicer. It builds a multicolor, print-ready 3D model of a molecule.
 
-> **Plná verze je na webu.** [3dmolekuly.vscht.cz](https://3dmolekuly.vscht.cz) umí navíc
-> vyhledávání v PubChem, import PDB a CIF, kreslení strukturních vzorců, otočné klouby
-> (Ball-and-Stick MOVING JOINTS), koule rozdělené pro lepení a export 3MF/STL.
+> **The full version is on the web.** [3dmolekuly.vscht.cz](https://3dmolekuly.vscht.cz) also
+> offers PubChem search, PDB and CIF import, structure drawing, print-in-place moving joints
+> (Ball-and-Stick MOVING JOINTS), spheres split for gluing and 3MF/STL export.
 
-*English version below.*
+## Installation
 
-## Instalace
+- **From the Plugin Marketplace:** in PrusaSlicer open the Plugin Marketplace, search for
+  "3D molekuly" and click *Install*.
+- **Manually (development):** copy the `cz.vscht.3dmolekuly.molecules` folder to
+  `~/Library/Application Support/PrusaSlicer3/lua/` (macOS; development builds use
+  `PrusaSlicer3-dev`) and restart PrusaSlicer.
 
-- **Z Plugin Marketplace:** v PrusaSlicer otevřete Plugin Marketplace, vyhledejte
-  „3D molekuly“ a klikněte na *Install*.
-- **Ručně (vývoj):** zkopírujte složku `cz.vscht.3dmolekuly.molecules` do
-  `~/Library/Application Support/PrusaSlicer3/lua/` (macOS; vývojové sestavení používá
-  `PrusaSlicer3-dev`) a v PrusaSlicer zvolte *Rescan plugins*.
+The plugin is in the menu **3D molekuly · 3D Molecules**, with two entries:
+**Create model (EN)** in English and **Vytvořit model (CZ)** in Czech.
 
-Plugin najdete v menu **3D molekuly · 3D Molecules → Vytvořit model (CZ)**. Anglická verze je v položce **Create model (EN)**.
+## Usage
 
-## Použití
+1. Pick a molecule from the list, or paste your own structure (see below).
+2. Choose the model type and settings.
+3. Confirm. The model is placed on the current bed.
 
-1. Vyberte molekulu ze seznamu, nebo vložte vlastní strukturu (viz níže).
-2. Zvolte typ zobrazení a nastavení.
-3. Potvrďte. Model se vloží na aktuální podložku.
+### Settings
 
-### Nastavení
+Names, defaults and size formulas match the web app. Czech labels are in brackets.
 
-Názvy, výchozí hodnoty a výpočty velikostí odpovídají webové aplikaci.
-
-| Nastavení | Výchozí | Význam |
+| Setting | Default | Meaning |
 |---|---|---|
-| Molekula | Kofein | Vestavěná knihovna 15 molekul (3D struktury z PubChem). |
-| Vlastní struktura (XYZ nebo MOL) | prázdné | Když není prázdné, má přednost před knihovnou. |
-| Typ zobrazení | Ball-and-Stick | `Spheres` (kalotový), `Ball-and-Stick` (kuličky a tyčinky), `Sticks` (tyčinkový). |
-| Měřítko modelu (mm / Å) | 10 | Kolik milimetrů odpovídá 1 Å. |
-| Největší rozměr [mm] | 0 | Je-li větší než 0, model se zvětší nebo zmenší tak, aby jeho nejdelší strana měla tuto délku. Měřítko se pak nepoužije. |
-| Násobící faktor | 1 | Velikost atomů (u `Sticks` tloušťka tyčinek). |
-| Násobící faktor vazby | 0,4 | Tloušťka vazeb u `Ball-and-Stick` (průměr = faktor × měřítko). |
-| Vodíky | ano | Vypnutím se odstraní atomy H i jejich vazby. |
-| Zobrazit násobné vazby | ano | Dvojné a trojné vazby jako 2 nebo 3 rovnoběžné tyčinky. |
-| Barvy podle prvků | ano | Každý prvek dostane vlastní filament (viz Vícebarevný tisk). |
-| Počet filamentů | 0 | 0 = jeden filament na prvek. Jinak prvky nad tento počet sdílejí poslední filament. |
-| Seříznout spodek [mm] | 0 | Seřízne spodní část modelu pro lepší přilnavost k podložce. |
+| Molecule *(Molekula)* | Caffeine | Built-in library of 15 molecules (3D structures from PubChem). |
+| Custom structure *(Vlastní struktura)* | empty | When filled in, it overrides the selected molecule. |
+| Select Model Type *(Typ zobrazení)* | Ball-and-Stick | `Spheres` (space-filling), `Ball-and-Stick`, `Sticks`. |
+| Print Model Scale (mm / Å) *(Měřítko modelu)* | 10 | How many millimetres one ångström takes. |
+| Largest dimension [mm] *(Největší rozměr)* | 0 | When above 0, the model is scaled so that its longest side has this length; the scale is then ignored. |
+| Multiplication Factor *(Násobící faktor)* | 1 | Atom size (stick thickness for `Sticks`). |
+| Bond Diameter Factor *(Násobící faktor vazby)* | 0.4 | Bond thickness for `Ball-and-Stick` (diameter = factor × scale). |
+| Hydrogens *(Vodíky)* | on | Off removes H atoms and their bonds. |
+| Show Multiple Bonds *(Zobrazit násobné vazby)* | on | Double and triple bonds as 2 or 3 parallel sticks. |
+| Color by element *(Barvy podle prvků)* | on | Every element gets its own filament (see Multicolor printing). |
+| Filament assignment *(Přiřazení filamentů)* | Closest CPK color | How elements are matched to filaments (see Multicolor printing). |
+| Number of filaments *(Počet filamentů)* | 0 | 0 = one filament per element. Otherwise elements beyond this number share the last filament. |
+| Flatten bottom [mm] *(Seříznout spodek)* | 0 | Cuts off the bottom of the model for better bed adhesion. |
 
-### Vlastní struktura
+### Custom structure
 
-Pole je jednořádkové, proto se řádky oddělují středníkem `;` (funguje i `|` nebo `\n`).
+The field is a single line, so lines are separated with a semicolon `;` (`|` or `\n` work too).
 
-**XYZ:** každý řádek ve tvaru `prvek x y z` (souřadnice v Å). Úvodní řádek s počtem
-atomů a řádek s komentářem se přeskočí. Vazby plugin dopočítá podle vzdálenosti atomů
-(kovalentní poloměry), všechny jsou jednoduché.
+**XYZ:** one atom per line as `element x y z` (coordinates in Å). A leading atom count and a
+comment line are skipped. Bonds are inferred from atom distances (covalent radii), all of them
+single.
 
 ```
 O 0 0 0; H 0.96 0 0; H -0.24 0.93 0
 ```
 
-**MOL / SDF (V2000 i V3000):** obsah souboru, například *3D SDF* stažený z PubChem. Obsahuje
-vazby i jejich násobnost. Ze souboru s více molekulami se použije první. Soubory s 2D souřadnicemi
-(všechna z = 0) dají plochý model, 3D tvar z 2D vzorce dopočítá jen web.
+**MOL / SDF (V2000 and V3000):** the file contents, e.g. a *3D SDF* downloaded from PubChem.
+Bonds and bond orders are kept. From a file with several molecules only the first one is used.
+Files with 2D coordinates (all z = 0) give a flat model; only the web app computes a 3D shape
+from a 2D drawing.
 
-Plugin zvládne nejvýše 1000 atomů.
+The plugin handles at most 1000 atoms.
 
-Když strukturu nejde přečíst, plugin místo modelu vloží na podložku text s popisem chyby
-(PrusaSlicer chyby pluginů jinak nezobrazuje). Text pak smažte.
+When a structure cannot be read, the plugin places a text with the error message on the bed
+instead of the model (PrusaSlicer does not show plugin errors otherwise). Delete the text
+afterwards.
 
-### Vícebarevný tisk
+### Multicolor printing
 
-Při zapnutých barvách dostane každý prvek vlastní filament. Nastavení *Přiřazení filamentů*:
+With *Color by element* on, every element gets its own filament. *Filament assignment*:
 
-- **Podle CPK barev filamentů** (výchozí): plugin přečte barvy filamentů na tiskárně a každému
-  prvku přiřadí filament s nejbližší barvou k jeho CPK barvě (stejné barvy jako na webu: C šedá,
-  H bílá, O červená, N modrá, S žlutá…). Hledá přiřazení s nejmenším celkovým rozdílem barev,
-  takže typické prvky dostanou „svou“ barvu a prvek bez vhodného filamentu (např. C bez šedé)
-  dostane zbývající. Když je prvků víc než filamentů, sdílí zbylé prvky nejbližší barvu.
-- **Postupně (C, H, O, N…)**: pořadí C, H, O, N, S, P, Cl, F, Br, I a pak ostatní abecedně.
-  Použije se i tehdy, když barvy filamentů nejde přečíst.
+- **Closest CPK color** (default): the plugin reads the filament colors of the printer and gives
+  each element the filament closest to its CPK color (the same colors as the web app: C gray,
+  H white, O red, N blue, S yellow…). It looks for the assignment with the smallest total color
+  difference, so typical elements get "their" color and an element without a suitable filament
+  (e.g. C without a gray one) gets what is left. When there are more elements than filaments,
+  the remaining elements share the closest color.
+- **In order (C, H, O, N…)**: the order C, H, O, N, S, P, Cl, F, Br, I, then the rest
+  alphabetically. Also used when the filament colors cannot be read.
 
-Barvy filamentů se čtou při spuštění pluginu, takže filamenty nastavte předem. Filamenty se přiřadí i na tiskárně s jedním nástrojem. Pro tisk
-pak přidejte odpovídající počet filamentů (MMU, INDX), nebo omezte počet barev nastavením
-*Počet filamentů*.
+Filament colors are read when the plugin runs, so set up the filaments first. Filaments are
+assigned even on a single-tool printer; to print, add the matching number of filaments (MMU,
+INDX) or limit the number of colors with *Number of filaments*.
 
-Každá polovina vazby má barvu atomu, ke kterému patří, stejně jako na webu.
+Each half of a bond takes the color of the atom it belongs to, as in the web app.
 
-**Barvy uvidíte jen s více filamenty.** Plugin přiřadí čísla filamentů vždy, ale tiskárna
-s jedním filamentem (např. CORE One bez MMU3) vykreslí celý model barvou toho jediného filamentu.
-Postup pro vícebarevný model:
+**Colors only show up with multiple filaments.** The plugin always assigns filament numbers, but
+a single-filament printer (e.g. a CORE One without MMU3) renders the whole model in the color of
+its only filament. To get a multicolor model:
 
-1. V panelu podložky (vpravo nahoře) změňte tiskárnu na variantu s více filamenty, např.
-   *CORE One + MMU3* nebo *CORE One INDX*.
-2. Nastavte filamenty a jejich barvy, např. podle CPK: C šedá, H bílá, O červená, N modrá.
-3. Model se obarví sám. Čísla filamentů v něm už jsou, plugin není potřeba spouštět znovu.
+1. In the bed panel (top right), switch the printer to a multi-filament variant, e.g.
+   *CORE One + MMU3* or *CORE One INDX*.
+2. Set the filaments and their colors, e.g. by CPK: C gray, H white, O red, N blue.
+3. The model is colored automatically. The filament numbers are already in it, there is no need
+   to run the plugin again.
 
-Plugin nemůže filamenty přidat ani nastavit jejich barvu. API v PrusaSlicer 3.0 umí zapisovat jen
-číselná nastavení, barva filamentu je text a seznam filamentů je dán tiskárnou.
+The plugin cannot add filaments or set their colors. The PrusaSlicer 3.0 plugin API can only
+write numeric settings, the filament color is text, and the list of filaments comes from the
+printer.
 
-Části nejsou pojmenované podle atomů a nejdou sloučit do jednoho dílu na prvek, protože to plugin
-API v PrusaSlicer 3.0 neumožňuje. Plugin je proto aspoň seřadí: všechny části jednoho prvku
-(atomy i poloviny vazeb) jsou v seznamu pohromadě v pořadí čísel filamentů.
+Volumes are not named after atoms and cannot be merged into one part per element, because the
+PrusaSlicer 3.0 plugin API does not allow it. The plugin therefore at least sorts them: all
+volumes of one element (atoms and bond halves) are next to each other in the object list, in
+filament order.
 
-## Omezení oproti webu
+## Limitations compared to the web app
 
-Plugin běží v sandboxu PrusaSlicer bez přístupu k internetu a k souborům. Proto:
+The plugin runs in PrusaSlicer's sandbox without network or file access. Therefore:
 
-- **Nevyhledává v PubChem ani PDB.** Strukturu stáhněte jinde a vložte ji do pole
-  *Vlastní struktura*.
-- **Neumí otočné klouby ani koule pro lepení.** Ty jsou jen na webu.
-- **Části modelu nejsou pojmenované podle atomů.** Plugin API v PrusaSlicer 3.0 zatím
-  neumožňuje pojmenovat části objektu.
+- **It does not search PubChem or PDB.** Download the structure elsewhere and paste it into
+  *Custom structure*.
+- **No moving joints or spheres split for gluing.** These are web-only.
+- **Volumes are not named after atoms.** The PrusaSlicer 3.0 plugin API cannot name volumes yet.
 
-## Známé problémy (PrusaSlicer 3.0 alpha)
+## Known issues (PrusaSlicer 3.0 alpha)
 
-- **Dlouhý text v poli *Vlastní struktura* rozbije vykreslení dialogu.** Po vložení velkého
-  souboru (např. SDF se stovkami molekul) se dialog zobrazí jako změť bílých čar. Model se přesto
-  vytvoří, ale vkládejte jen jednu molekulu: u SDF text od názvu po řádek `M  END`. Jde o chybu
-  dialogu v PrusaSlicer, plugin ji obejít nemůže.
-- **Popisky dialogu musí být jednořádkové.** Víceřádkový popisek rozbije vykreslení stejně.
-- **Přejmenování položek menu pluginu za běhu může shodit PrusaSlicer** (po *Rescan plugins*
-  zůstane v nativním menu na macOS stará položka). Po aktualizaci pluginu PrusaSlicer restartujte.
-- **Chyby pluginů PrusaSlicer nezobrazuje**, jen je zapisuje do logu
-  (`~/Library/Application Support/PrusaSlicer3/shared_runtime/log.txt`, u vývojového sestavení
-  `PrusaSlicer3-dev`). Plugin proto chybu
-  vypíše jako text na podložku.
-
----
-
-# 3D Molecules – PrusaSlicer 3.0 plugin
-
-A simplified, offline version of [3dmolekuly.vscht.cz](https://3dmolekuly.vscht.cz) inside
-PrusaSlicer. It builds a multicolor, print-ready 3D model of a molecule.
-
-> **The full version is on the web.** [3dmolekuly.vscht.cz](https://3dmolekuly.vscht.cz) adds
-> PubChem search, PDB and CIF import, structure drawing, moving joints, spheres split for gluing
-> and 3MF/STL export.
-
-**Usage:** menu **3D molekuly · 3D Molecules → Create model (EN)**. Pick a molecule from the built-in library
-(15 molecules with PubChem 3D conformers) or paste your own structure:
-
-- **XYZ:** `element x y z` per line in Å, lines separated by `;`. Bonds are inferred from
-  covalent radii.
-- **MOL/SDF V2000 or V3000:** e.g. a PubChem *3D SDF*. Bond orders are kept; from a multi-record
-  SDF only the first molecule is used. 2D files (all z = 0) give a flat model.
-
-Model types (`Spheres`, `Ball-and-Stick`, `Sticks`), scale (mm per Å, default 10), size
-factors and defaults match the web app. *Largest dimension* fits the longest side of the model
-to the given length. With *Color by element* on, every element gets its own filament; to see
-and print the colors, switch the printer to a multi-filament setup (e.g. *CORE One + MMU3* or
-*INDX*). The plugin cannot add filaments or set their colors.
-
-**Known issues (PrusaSlicer 3.0 alpha):** pasting a very long text (e.g. an SDF with hundreds of
-molecules) into *Custom structure* breaks the dialog rendering, so paste one molecule only;
-multi-line labels break it as well; plugin errors are only logged, so the plugin embosses them
-onto the bed; restart PrusaSlicer after updating the plugin.
-
-**Limitations:** the plugin runs in PrusaSlicer's sandbox with no network or file access, so it
-cannot search PubChem; moving joints and spheres split for gluing are web-only; volumes cannot
-be named after atoms with the current plugin API.
+- **A long text in *Custom structure* breaks the dialog rendering.** After pasting a large file
+  (e.g. an SDF with hundreds of molecules) the dialog turns into a tangle of white lines. The
+  model is still created, but paste one molecule only: for an SDF, the text from the name down
+  to the `M  END` line. This is a bug in the PrusaSlicer dialog that the plugin cannot work
+  around.
+- **Dialog labels must be single-line.** A multi-line label breaks the rendering the same way.
+- **Renaming the plugin's menu entries at runtime can crash PrusaSlicer** (after *Rescan
+  plugins* the old entry stays in the native macOS menu). Restart PrusaSlicer after updating
+  the plugin.
+- **PrusaSlicer does not show plugin errors**, it only writes them to the log
+  (`~/Library/Application Support/PrusaSlicer3/shared_runtime/log.txt`, `PrusaSlicer3-dev` for
+  development builds). The plugin therefore prints the error as text on the bed.
 
 ## Development
 
 ```
-prusaslicer-plugin/
+3d-molekuly-prusaslicer-plugin/
 ├── README.md, CHANGELOG.md, PUBLISHING.md  docs (not shipped)
 ├── .github/workflows/
 │   ├── check.yml                      tests + dry-run bundle on every push
@@ -188,9 +160,8 @@ Regenerate the built-in library after changing `tools/pubchem/` or the names in 
 python3 tools/sdf2lua.py tools/pubchem cz.vscht.3dmolekuly.molecules/library.lua
 ```
 
-Try the plugin locally: copy `cz.vscht.3dmolekuly.molecules` to
-`~/Library/Application Support/PrusaSlicer3/lua/` (or `PrusaSlicer3-dev`) and restart PrusaSlicer.
-
 `chem.lua` has no PrusaSlicer dependencies, so the geometry can be tested with a plain
 `lua` interpreter. The API reference is `src/slic3r-shared/src/Slic3r/App/Lua/ProjectApi.cpp`
 in the [PrusaSlicer repository](https://github.com/prusa3d/PrusaSlicer).
+
+Publishing to the Plugin Marketplace is described in [PUBLISHING.md](PUBLISHING.md).
