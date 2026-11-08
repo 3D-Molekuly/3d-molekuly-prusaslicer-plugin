@@ -71,13 +71,31 @@ the PrusaSlicer plugin folder and restart PrusaSlicer. PrusaSlicer opens the fol
 ## Quick start
 
 1. Set up your filaments first (the plugin reads their colors when it runs).
-2. Open **3D molekuly · 3D Molecules → Create model (EN)** (or *Vytvořit model (CZ)*).
+2. Open **Plugins → 3D molekuly · 3D Molecules → Create model (EN)** (or *Vytvořit model (CZ)*).
+
+   <img src="docs/images/plugin-how-to-select.png" alt="PrusaSlicer Plugins menu with 3D molekuly · 3D Molecules → Create model (EN) and Vytvořit model (CZ)" width="760" />
+
 3. Pick a molecule, or paste your own structure.
-4. Choose the model type and settings, then confirm. The model is placed on the current bed.
+4. Choose the model type and settings, then click **Run**. The model is placed on the current
+   bed.
 
 ## Settings
 
 Names, defaults and size formulas match the web app. Czech labels are in brackets.
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/images/UIeng.png" alt="Plugin dialog in English: Caffeine, Ball-and-Stick, scale 10 mm per ångström, Closest CPK color" width="380" /></td>
+    <td align="center"><img src="docs/images/UIcz.png" alt="Plugin dialog in Czech: Kofein, Ball-and-Stick, Měřítko modelu 10, Podle CPK barev filamentů" width="380" /></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Create model (EN)</em></td>
+    <td align="center"><em>Vytvořit model (CZ)</em></td>
+  </tr>
+</table>
+
+PrusaSlicer 3.0 alpha may show *Bond Diameter Factor* as 0 (a decimal default arriving as 0);
+the plugin then uses the web app's default 0.4.
 
 | Setting | Default | Meaning |
 |---|---|---|
@@ -155,6 +173,9 @@ PrusaSlicer 3.0 is an alpha. Issues we know about:
   (e.g. an SDF with hundreds of molecules) the dialog turns into a tangle of white lines. The
   model is still created, but paste one molecule only: for an SDF, the text from the name down
   to the `M  END` line.
+
+  <img src="docs/images/UIerror-after-pasting-input.png" alt="Plugin dialog with garbled labels after pasting a large SDF file into Custom structure" width="380" />
+
 - **Dialog labels must be single-line**; a multi-line label breaks the rendering the same way.
 - **Restart PrusaSlicer after updating the plugin.** After *Rescan plugins*, a renamed menu entry
   can stay in the native macOS menu and crash PrusaSlicer when clicked.
