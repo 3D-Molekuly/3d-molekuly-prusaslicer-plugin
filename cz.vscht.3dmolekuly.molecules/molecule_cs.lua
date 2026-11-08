@@ -15,7 +15,7 @@ info = {
             "Ethyn (C₂H₂)", "Ethanol", "Kyselina octová", "Kyselina sírová", "Cyklohexan", "Benzen",
             "Glukóza", "Paracetamol", "Aspirin", "Kofein"
          }},
-        {name = "custom", label = "Vlastní struktura (XYZ nebo MOL)\nXYZ: prvek x y z v Å, atomy oddělte středníkem,\nnapř. O 0 0 0; H 0.96 0 0; H -0.24 0.93 0\nMOL/SDF: obsah souboru, např. 3D SDF z PubChem\nVyplněné pole má přednost před výběrem molekuly.", type = "string", default = ""},
+        {name = "custom", label = "Vlastní struktura (XYZ: O 0 0 0; H 0.96 0 0 … nebo MOL)", type = "string", default = ""},
         {name = "style", label = "Typ zobrazení", type = "combobox", default = "Ball-and-Stick",
          allowed_values = {"Spheres", "Ball-and-Stick", "Sticks"}},
         {name = "scale", label = "Měřítko modelu (mm / Å)", type = "float", default = 10},
@@ -25,6 +25,8 @@ info = {
         {name = "hydrogens", label = "Vodíky", type = "bool", default = true},
         {name = "multiple_bonds", label = "Zobrazit násobné vazby", type = "bool", default = true},
         {name = "colors", label = "Barvy podle prvků (více filamentů)", type = "bool", default = true},
+        {name = "filament_mode", label = "Přiřazení filamentů", type = "combobox", default = "Podle CPK barev filamentů",
+         allowed_values = {"Podle CPK barev filamentů", "Postupně (C, H, O, N…)"}},
         {name = "filaments", label = "Počet filamentů  (0 = jeden na prvek)", type = "int", default = 0},
         {name = "flatten", label = "Seříznout spodek  [mm]", type = "float", default = 0}
     }

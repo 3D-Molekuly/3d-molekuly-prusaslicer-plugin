@@ -15,7 +15,7 @@ info = {
             "Ethyne (C₂H₂)", "Ethanol", "Acetic acid", "Sulfuric acid", "Cyclohexane", "Benzene",
             "Glucose", "Paracetamol", "Aspirin", "Caffeine"
          }},
-        {name = "custom", label = "Custom structure (XYZ or MOL)\nXYZ: element x y z in Å, separate atoms with semicolons,\ne.g. O 0 0 0; H 0.96 0 0; H -0.24 0.93 0\nMOL/SDF: file contents, e.g. a 3D SDF from PubChem\nWhen filled in, it overrides the selected molecule.", type = "string", default = ""},
+        {name = "custom", label = "Custom structure (XYZ: O 0 0 0; H 0.96 0 0 … or MOL)", type = "string", default = ""},
         {name = "style", label = "Select Model Type", type = "combobox", default = "Ball-and-Stick",
          allowed_values = {"Spheres", "Ball-and-Stick", "Sticks"}},
         {name = "scale", label = "Print Model Scale (mm / Å)", type = "float", default = 10},
@@ -25,6 +25,8 @@ info = {
         {name = "hydrogens", label = "Hydrogens", type = "bool", default = true},
         {name = "multiple_bonds", label = "Show Multiple Bonds", type = "bool", default = true},
         {name = "colors", label = "Color by element (multiple filaments)", type = "bool", default = true},
+        {name = "filament_mode", label = "Filament assignment", type = "combobox", default = "Closest CPK color",
+         allowed_values = {"Closest CPK color", "In order (C, H, O, N…)"}},
         {name = "filaments", label = "Number of filaments  (0 = one per element)", type = "int", default = 0},
         {name = "flatten", label = "Flatten bottom  [mm]", type = "float", default = 0}
     }

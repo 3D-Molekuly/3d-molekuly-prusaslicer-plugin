@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.0
+
+- Filamenty se přiřazují podle **CPK barev**: plugin přečte barvy filamentů na tiskárně a každému
+  prvku dá filament s nejbližší barvou (O červená, N modrá, H bílá…). Nové nastavení
+  *Přiřazení filamentů*: *Podle CPK barev filamentů* (výchozí) nebo *Postupně (C, H, O, N…)*.
+  Když barvy nejde přečíst, použije se pořadí.
+
+## 0.3.2
+
+- Vlastní struktura čte i MOL/SDF **V3000** (např. export z DataWarrior). Ze souboru s více
+  molekulami se použije první. Funguje i tehdy, když políčko při vložení smaže konce řádků.
+- Oprava: víceřádkový popisek pole *Vlastní struktura* rozbíjel vykreslení dialogu. Nápověda je
+  teď stručně v jednom řádku.
+
 ## 0.3.1
 
 - Části modelu jsou v seznamu seřazené podle prvků (C, H, O, N…), každý prvek včetně svých

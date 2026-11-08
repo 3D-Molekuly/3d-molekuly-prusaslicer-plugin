@@ -18,7 +18,6 @@ local MESSAGES = {
         mol_atom = "MOL: chybný řádek atomu %s",
         mol_bond = "MOL: chybný řádek vazby %s",
         unknown_format = "nerozpoznaný formát, vložte XYZ (O 0 0 0; H 0.96 0 0) nebo MOL",
-        v3000 = "MOL V3000 není podporován, použijte V2000 nebo XYZ",
         internal = "%s"
     },
     en = {
@@ -31,7 +30,6 @@ local MESSAGES = {
         mol_atom = "MOL: invalid atom line %s",
         mol_bond = "MOL: invalid bond line %s",
         unknown_format = "unknown format, paste XYZ (O 0 0 0; H 0.96 0 0) or MOL",
-        v3000 = "MOL V3000 is not supported, use V2000 or XYZ",
         internal = "%s"
     }
 }
@@ -44,6 +42,37 @@ local STYLES = {
     ["Ball-and-Stick"] = "ball_and_stick",
     ["Sticks"] = "sticks"
 }
+
+local FILAMENT_MODES = {
+    ["Podle CPK barev filamentů"] = "cpk",
+    ["Closest CPK color"] = "cpk",
+    ["Postupně (C, H, O, N…)"] = "order",
+    ["In order (C, H, O, N…)"] = "order"
+}
+
+-- The API cannot set filament colors (only numeric settings), but it can read them. Which key
+-- holds the color in PrusaSlicer 3.0 is not documented, so both candidates are tried.
+-- Returns one entry per filament slot: "#RRGGBB", or false when the color cannot be read.
+local function filament_colors(bed, max_filaments)
+    local colors = {}
+    for slot = 0, math.min(max_filaments, 16) - 1 do
+        local exists = pcall(function() return bed:material_presets(slot) end)
+        if not exists then break end
+        local color = false
+        for _, read in ipairs({
+            function() return bed:material_presets(slot):value("filament_colour") end,
+            function() return bed:tool_print_presets(slot):value("extruder_colour") end
+        }) do
+            local ok, value = pcall(read)
+            if ok and type(value) == "string" and value:match("^#%x%x%x%x%x%x$") then
+                color = value
+                break
+            end
+        end
+        colors[slot + 1] = color
+    end
+    return colors
+end
 
 local function center_of(bb)
     return { (bb.min_x + bb.max_x) / 2, (bb.min_y + bb.max_y) / 2, (bb.min_z + bb.max_z) / 2 }
@@ -97,10 +126,17 @@ local function build(opts)
         prims = chem.build_primitives(mol, build_opts)
     end
 
-    -- Filaments are assigned even on a single-tool printer: the slicer then asks for the
-    -- missing filaments (MMU, INDX or a manual filament change), as with the web's 3MF.
     local max_filaments = number(opts.filaments) > 0 and opts.filaments or math.huge
-    local filament, elements = chem.assign_filaments(mol.atoms, max_filaments)
+    local filament, elements
+    if FILAMENT_MODES[opts.filament_mode] ~= "order" then
+        local colors = filament_colors(api.project:current_bed(), max_filaments)
+        filament, elements = chem.assign_filaments_by_color(mol.atoms, colors)
+    end
+    if not filament then
+        -- Filaments are assigned even on a single-tool printer: the slicer then asks for the
+        -- missing filaments (MMU, INDX or a manual filament change), as with the web's 3MF.
+        filament, elements = chem.assign_filaments(mol.atoms, max_filaments)
+    end
     local use_colors = opts.colors and #elements > 1
 
     -- Volumes cannot be merged or named through the API, so at least keep each element's

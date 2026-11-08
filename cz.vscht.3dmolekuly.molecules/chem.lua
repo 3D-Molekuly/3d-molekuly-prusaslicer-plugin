@@ -98,12 +98,45 @@ local function parse_xyz(lines)
     return mol
 end
 
+-- MOL/SDF V3000. Records are split on the "M  V30" prefix rather than on line breaks,
+-- so it also works when the text field drops newlines. Only the first molecule of a
+-- multi-record SDF is read.
+local function parse_v3000(text)
+    local mol = { atoms = {}, bonds = {} }
+    local index_of = {}
+    local section
+    for record in (text:gsub("M%s+V30%s+", "\n\1") .. "\n"):gmatch("\1([^\n\1]*)") do
+        local w = words(record)
+        local keyword = (w[1] or ""):upper()
+        if keyword == "BEGIN" then
+            section = (w[2] or ""):upper()
+        elseif keyword == "END" then
+            -- Without newlines the rest of the file is glued on ("CTABM  END..."), hence the prefix.
+            if (w[2] or ""):upper():find("^CTAB") then break end
+            section = nil
+        elseif section == "ATOM" then
+            local idx, el = tonumber(w[1]), w[2] and normalize_element(w[2])
+            local x, y, z = tonumber(w[3]), tonumber(w[4]), tonumber(w[5])
+            if not (idx and el and x and y and z) then M.fail("mol_atom", w[1] or "?") end
+            table.insert(mol.atoms, { el, x, y, z })
+            index_of[idx] = #mol.atoms
+        elseif section == "BOND" then
+            local order, a, b = tonumber(w[2]), index_of[tonumber(w[3])], index_of[tonumber(w[4])]
+            if not (order and a and b) then M.fail("mol_bond", w[1] or "?") end
+            -- Aromatic (4) and other query bond types are drawn as single bonds.
+            table.insert(mol.bonds, { a, b, (order >= 1 and order <= 3) and order or 1 })
+        end
+    end
+    if #mol.atoms == 0 then M.fail("mol_counts") end
+    return mol
+end
+
 function M.parse(text)
+    if text:find("M%s+V30") then return parse_v3000(text) end
     local lines = split_lines(text)
     for _, line in ipairs(lines) do
         if line:find("V2000") then return parse_molfile(lines) end
     end
-    if text:find("V3000") then M.fail("v3000") end
     return parse_xyz(lines)
 end
 
@@ -160,6 +193,129 @@ function M.assign_filaments(atoms, max_filaments)
     local map = {}
     for i, el in ipairs(ordered) do map[el] = math.min(i, max_filaments) end
     return map, ordered
+end
+
+-- CPK colors (same table as the web app's FALLBACK_ELEMENTS).
+M.CPK = {
+    H = "FFFFFF", He = "D9FFFF", Li = "CC80FF", Be = "C2FF00", B = "FFB5B5", C = "909090",
+    N = "3050F8", O = "FF0D0D", F = "90E050", Na = "AB5CF2", Mg = "8AFF00", Al = "BFA6A6",
+    Si = "F0C8A0", P = "FF8000", S = "FFFF30", Cl = "1FF01F", K = "8F40D4", Ca = "3DFF00",
+    Ti = "BFC2C7", Mn = "9C7AC7", Fe = "E06633", Co = "F090A0", Ni = "50D050", Cu = "C88033",
+    Zn = "7D80B0", Se = "FFA100", Br = "A62929", Ag = "C0C0C0", I = "940094", Pt = "D0D0E0",
+    Au = "FFD123"
+}
+local DEFAULT_CPK = "FF1493"
+
+-- "#RRGGBB" or "RRGGBB" -> hue (degrees), saturation, value; or nil.
+local function hex_to_hsv(hex)
+    local r, g, b = tostring(hex):match("^#?(%x%x)(%x%x)(%x%x)$")
+    if not r then return nil end
+    r, g, b = tonumber(r, 16) / 255, tonumber(g, 16) / 255, tonumber(b, 16) / 255
+    local max, min = math.max(r, g, b), math.min(r, g, b)
+    local delta = max - min
+    local h = 0
+    if delta > 0 then
+        if max == r then h = 60 * (((g - b) / delta) % 6)
+        elseif max == g then h = 60 * ((b - r) / delta + 2)
+        else h = 60 * ((r - g) / delta + 4) end
+    end
+    return h, max > 0 and delta / max or 0, max
+end
+
+-- How different two colors look for telling filaments apart. Hue dominates, but only as far as
+-- both colors are saturated, so gray and white are matched by saturation and brightness.
+-- (CIELAB distance puts CPK blue closer to magenta than to cyan, which looks wrong on a model.)
+function M.color_distance(hex_a, hex_b)
+    local h1, s1, v1 = hex_to_hsv(hex_a)
+    local h2, s2, v2 = hex_to_hsv(hex_b)
+    if not (h1 and h2) then return math.huge end
+    local dh = math.abs(h1 - h2)
+    dh = math.min(dh, 360 - dh) / 180
+    return math.sqrt((2 * dh * math.min(s1, s2)) ^ 2 + (s1 - s2) ^ 2 + (0.5 * (v1 - v2)) ^ 2)
+end
+
+-- Maps each element to the filament whose color is closest to the element's CPK color.
+-- filament_colors[i] is "#RRGGBB" for filament i, or false when unknown. Pairs are taken
+-- globally closest first, so a distinct color (O red, N blue) is not stolen by an element
+-- that matches nothing well (C gray); elements left over share their closest filament.
+-- Returns nil when no filament color is known.
+function M.assign_filaments_by_color(atoms, filament_colors)
+    local present, elements = {}, {}
+    for _, a in ipairs(atoms) do
+        if not present[a[1]] then present[a[1]] = true; table.insert(elements, a[1]) end
+    end
+    local known, dist = {}, {}
+    for i, color in ipairs(filament_colors) do
+        if color then table.insert(known, i) end
+    end
+    if #known == 0 then return nil end
+    for _, el in ipairs(elements) do
+        dist[el] = {}
+        for _, f in ipairs(known) do dist[el][f] = M.color_distance(M.CPK[el] or DEFAULT_CPK, filament_colors[f]) end
+    end
+
+    local map = {}
+    local distinct = math.min(#elements, #known)
+    if distinct <= 8 and #known <= 8 then
+        -- Exhaustive search over the elements that get a filament of their own: the one-to-one
+        -- assignment with the smallest total color difference (at most 8!/0! = 40320 cases).
+        local best, best_cost, used, current = nil, math.huge, {}, {}
+        local function search(k, cost)
+            if cost >= best_cost then return end
+            if k > distinct then
+                best_cost, best = cost, {}
+                for e, f in pairs(current) do best[e] = f end
+                return
+            end
+            for _, f in ipairs(known) do
+                if not used[f] then
+                    used[f], current[elements[k]] = true, f
+                    search(k + 1, cost + dist[elements[k]][f])
+                    used[f], current[elements[k]] = nil, nil
+                end
+            end
+        end
+        -- Most frequent elements first, so they are the ones guaranteed a distinct filament.
+        local count = {}
+        for _, a in ipairs(atoms) do count[a[1]] = (count[a[1]] or 0) + 1 end
+        table.sort(elements, function(a, b)
+            if count[a] ~= count[b] then return count[a] > count[b] end
+            return a < b
+        end)
+        search(1, 0)
+        map = best
+    else
+        -- Too many combinations: take globally closest pairs first.
+        local pairs_list = {}
+        for _, el in ipairs(elements) do
+            for _, f in ipairs(known) do table.insert(pairs_list, { el = el, f = f, d = dist[el][f] }) end
+        end
+        table.sort(pairs_list, function(p, q)
+            if p.d ~= q.d then return p.d < q.d end
+            if p.el ~= q.el then return p.el < q.el end
+            return p.f < q.f
+        end)
+        local used = {}
+        for _, p in ipairs(pairs_list) do
+            if not map[p.el] and not used[p.f] then map[p.el] = p.f; used[p.f] = true end
+        end
+    end
+    -- Elements without a filament of their own share the closest one.
+    for _, el in ipairs(elements) do
+        if not map[el] then
+            local best_f, best_d = nil, math.huge
+            for _, f in ipairs(known) do
+                if dist[el][f] < best_d then best_f, best_d = f, dist[el][f] end
+            end
+            map[el] = best_f
+        end
+    end
+    -- Element order for grouping volumes: by filament number, then by name.
+    table.sort(elements, function(a, b)
+        if map[a] ~= map[b] then return map[a] < map[b] end
+        return a < b
+    end)
+    return map, elements
 end
 
 -- Vector helpers -------------------------------------------------------------
