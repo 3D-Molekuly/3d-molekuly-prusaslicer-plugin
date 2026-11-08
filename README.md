@@ -35,6 +35,7 @@ element assigned to the filament closest to its CPK color.
 - [Limitations](#limitations)
 - [Known issues](#known-issues)
 - [Development](#development)
+- [References](#references)
 - [License](#license)
 
 ## Features
@@ -174,7 +175,7 @@ Found another one? Please [open an issue](https://github.com/molekuly3d/3d-molek
 │   └── library.lua                    built-in molecules, generated from PubChem 3D SDF
 ├── tests/                             run.sh, tests against a mocked PrusaSlicer API
 ├── tools/                             sdf2lua.py + PubChem 3D SDF for the built-in library
-├── docs/images/                       README images
+├── docs/                              PLUGIN_API_NOTES.md, README images
 ├── .github/workflows/
 │   ├── check.yml                      tests + dry-run signed bundle on every push
 │   └── release.yml                    signs and publishes on a GitHub release
@@ -195,10 +196,22 @@ python3 tools/sdf2lua.py tools/pubchem io.github.molekuly3d.molecules/library.lu
 ```
 
 `chem.lua` has no PrusaSlicer dependencies, so the geometry can be tested with a plain Lua
-interpreter. The API reference is
-[`ProjectApi.cpp`](https://github.com/prusa3d/PrusaSlicer/blob/master/src/slic3r-shared/src/Slic3r/App/Lua/ProjectApi.cpp)
-in the PrusaSlicer repository. Publishing to the Plugin Marketplace is described in
-[PUBLISHING.md](PUBLISHING.md); changes are listed in [CHANGELOG.md](CHANGELOG.md).
+interpreter. Changes are listed in [CHANGELOG.md](CHANGELOG.md).
+
+## References
+
+- [PUBLISHING.md](PUBLISHING.md): step-by-step marketplace setup (author profile, signing key,
+  trusted publishing, `release` environment), releasing a new version and troubleshooting.
+- [docs/PLUGIN_API_NOTES.md](docs/PLUGIN_API_NOTES.md): what we learned about the PrusaSlicer 3.0
+  plugin API while building this plugin (loading, dialog, meshes, config access, sandbox).
+- [`ProjectApi.cpp`](https://github.com/prusa3d/PrusaSlicer/blob/master/src/slic3r-shared/src/Slic3r/App/Lua/ProjectApi.cpp)
+  and [`doc/Plugin_API.md`](https://github.com/prusa3d/PrusaSlicer/blob/master/doc/Plugin_API.md)
+  in the PrusaSlicer repository: the plugin API source and official guide.
+- [prusa3d/plugin-marketplace-example](https://github.com/prusa3d/plugin-marketplace-example)
+  and [prusa3d/plugin-marketplace-publish](https://github.com/prusa3d/plugin-marketplace-publish):
+  Prusa's example repository and the GitHub Action used by our workflows.
+- [Prusa Plugin Marketplace](https://plugin-marketplace.prusa3d.com): catalogue and author
+  console.
 
 ## License
 

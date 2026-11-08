@@ -20,40 +20,56 @@ moderated. The changelog comes from the GitHub release notes.
    under *Namespaces*. No part of the id may start with a digit: PrusaSlicer rejects
    `cz.vscht.3dmolekuly.…` and `io.github.3d-molekuly.…` as "not in reverse DNS form", which is
    why the GitHub organization was renamed from `3D-Molekuly` to `molekuly3d`.
-3. **Signing key.** Create an RSA key pair and register `public_key.pem` in the console under
-   *Signing keys*. Never commit the private key (`.gitignore` already ignores `*.pem`).
+3. **Signing key.** Create an RSA key pair outside the repository, e.g. in `~/.prusaslicer-keys`,
+   and back up `private_key.pem` (e.g. in a password manager). Never commit it (`.gitignore`
+   already ignores `*.pem`).
 
    ```bash
    openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048
    openssl rsa -pubout -in private_key.pem -out public_key.pem
    ```
 
+   Register the **public** key in the console under *Signing keys*: paste the contents of
+   `public_key.pem` (`pbcopy < public_key.pem` on macOS) or upload the file. **Clear the
+   *Expires* field** or set a date years ahead: the form pre-fills today's date, and a key that
+   expires today cannot sign the release.
+
 4. **Trusted publishing.** In the console under *Trusted publishing*, add:
    - Plugin id: `io.github.molekuly3d.molecules`
-   - GitHub repository: `molekuly3d/3d-molekuly-prusaslicer-plugin`
+   - GitHub repository: `molekuly3d/3d-molekuly-prusaslicer-plugin` (this repository, not the
+     web app's)
    - Workflow file: `release.yml`
    - Environment: `release`
-5. **`release` environment on GitHub.** Allow only `v*` tags, add yourself as a required
-   reviewer and store the key there:
+5. **`release` environment on GitHub.** In this repository: *Settings → Environments → New
+   environment* `release`, then:
+   - *Required reviewers*: add yourself, so every publish waits for your approval.
+   - *Deployment branches and tags*: *Selected branches and tags*, add a **tag** rule `v*`.
+   - *Environment secrets → Add environment secret*: name
+     `PRUSA_SLICER_PLUGIN_MARKETPLACE_SIGNING_KEY`, value the whole contents of
+     `private_key.pem` (from `-----BEGIN PRIVATE KEY-----` to `-----END PRIVATE KEY-----`;
+     `pbcopy < private_key.pem` on macOS, then clear the clipboard with `echo -n "" | pbcopy`).
 
-   ```bash
-   gh secret set PRUSA_SLICER_PLUGIN_MARKETPLACE_SIGNING_KEY --env release < private_key.pem
-   ```
+   Environments need a public repository on GitHub's free plan. With the GitHub CLI the secret
+   can also be set with
+   `gh secret set PRUSA_SLICER_PLUGIN_MARKETPLACE_SIGNING_KEY --env release < private_key.pem`.
 
 6. **Workflow.** `.github/workflows/release.yml` (taken from the example repository) is already
    set up for the `io.github.molekuly3d.molecules` folder.
 
 ## Releasing a new version
 
-Bump `version` in `manifest.json`, commit, and create a GitHub release whose tag is that
-version:
+1. Bump `version` in `manifest.json`, add the changes to `CHANGELOG.md`, commit and push. Wait
+   for the *Check* workflow to pass.
+2. On GitHub: *Releases → Draft a new release*. Tag `v<version>` (it must end with the
+   manifest version, e.g. `v0.4.1`), title `3D Molecules <version>`, and **fill in the release
+   notes**: they become the changelog in the catalogue (with empty notes GitHub shows the commit
+   message instead). Tick *Set as a pre-release* for the beta channel. *Publish release*.
 
-```bash
-gh release create v0.4.0 --title "3D Molecules 0.4.0" --notes-file CHANGELOG.md
-```
-
-A pre-release (`--prerelease`) goes to the beta channel. Every release is reviewed before it
-becomes public.
+   With the GitHub CLI: `gh release create v0.4.1 --prerelease --title "3D Molecules 0.4.1" --notes "…"`.
+3. *Actions → Publish to Plugin Marketplace*: the run waits for approval. *Review deployments →
+   release → Approve and deploy*.
+4. When the run succeeds, the release waits for Prusa's scan and review in the author console.
+   After approval it appears in the catalogue (beta channel for pre-releases).
 
 ## Uploading a bundle manually
 
@@ -74,6 +90,39 @@ On macOS the binary is `/Applications/PrusaSlicer-<version>.app/Contents/MacOS/P
 command writes `manifest.txt` and `manifest.sig` into the folder and `io.github.molekuly3d.molecules.zip`
 next to it; upload that zip. Both are ignored by `.gitignore`, so delete them or leave them
 untracked. The key used must be registered under *Signing keys*.
+
+## Troubleshooting
+
+Errors seen while publishing 0.4.0 and how they were fixed. A failed publish run can be repeated
+without a new release: open the run, *Re-run jobs → Re-run failed jobs*, and approve it again.
+
+| Error | Cause | Fix |
+|---|---|---|
+| `Invalid id: ID should be in reverse DNS like form` (`PrusaSlicer plugin sign`) | A part of the id starts with a digit (`cz.vscht.3dmolekuly…`). | Use an id whose parts all start with a letter. |
+| `bundle is missing manifest.json at its root` (manual upload) | A plain zip of the folder or repository was uploaded. | Upload a zip from `PrusaSlicer plugin sign`, or publish from GitHub Actions. |
+| `… is outside your namespaces` (manual upload) | The id's namespace is not verified. | Verify the domain under *Namespaces*, or use `io.github.<repository owner>.*` and publish from GitHub Actions. |
+| `403: <repo> (release.yml) is not a trusted publisher of <id>` | The trusted publisher lists a different repository, workflow or environment. | Fix the entry under *Trusted publishing* so it matches this repository exactly. |
+| `422: bundle is signed but the author has no public key on file` | The public key is not registered, or it has expired (the *Expires* field defaults to today). | Register `public_key.pem` under *Signing keys* with no expiry date. |
+| Publish fails on the version check (input `check-version`) | Tag and `version` in `manifest.json` differ. | Tag `v<version>` exactly. |
+
+To check that the secret on GitHub holds the right key, compare the fingerprint printed in the
+publish log (`Signed with key <sha256>`) with the local one:
+
+```bash
+openssl rsa -pubin -in public_key.pem -outform DER | shasum -a 256
+```
+
+## References
+
+- [Prusa Plugin Marketplace](https://plugin-marketplace.prusa3d.com): author console (profile,
+  namespaces, signing keys, trusted publishing) and the publishing guide.
+- [prusa3d/plugin-marketplace-example](https://github.com/prusa3d/plugin-marketplace-example):
+  official template repository with the `check.yml` and `release.yml` workflows used here.
+- [prusa3d/plugin-marketplace-publish](https://github.com/prusa3d/plugin-marketplace-publish):
+  the GitHub Action that signs and uploads the bundle; its README lists every input (`path`,
+  `channel`, `changelog`, `dry-run`…).
+- `PrusaSlicer plugin --help`: CLI with `init`, `keygen` and `sign` for local bundles.
+- Plugin API and development notes: see [docs/PLUGIN_API_NOTES.md](docs/PLUGIN_API_NOTES.md).
 
 ## Catalogue texts
 
