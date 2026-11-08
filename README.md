@@ -172,7 +172,7 @@ PrusaSlicer 3.0 is an alpha. Issues we know about:
 - **A long text in *Custom structure* breaks the dialog rendering.** After pasting a large file
   (e.g. an SDF with hundreds of molecules) the dialog turns into a tangle of white lines. The
   model is still created, but paste one molecule only: for an SDF, the text from the name down
-  to the `M  END` line.
+  to the `M  END` line. Pressing enter on a keyboard works even when the views is bugged.
 
   <img src="docs/images/UIerror-after-pasting-input.png" alt="Plugin dialog with garbled labels after pasting a large SDF file into Custom structure" width="380" />
 
