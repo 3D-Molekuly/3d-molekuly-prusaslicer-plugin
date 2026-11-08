@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1
+
+- Fix: a MOL/SDF **V2000** file (e.g. a 3D SDF from PubChem) pasted into *Custom structure*
+  failed with "MOL: cannot read atom and bond counts", because the field drops line breaks.
+  V2000 is now read without line breaks too, like V3000.
+
 ## 0.4.0
 
 - Plugin id changed to `io.github.molekuly3d.molecules` (the GitHub organization is now

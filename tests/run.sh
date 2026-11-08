@@ -16,5 +16,8 @@ for lua in lua5.4 luajit; do
     out=$("$lua" tests/test_v3000.lua "$PLUGIN" tests/fixtures/acacetin_v3000.sdf 2>&1)
     echo "$lua: v3000 $out"
     [ "$out" = "OK" ] || exit 1
+    out=$("$lua" tests/test_v2000_paste.lua "$PLUGIN" tests/fixtures/adenosine.sdf 2>&1)
+    echo "$lua: v2000 paste $out"
+    [ "$out" = "OK" ] || exit 1
 done
 [ "$ran" = 1 ] || { echo "No Lua interpreter (lua5.4 or luajit) found"; exit 1; }

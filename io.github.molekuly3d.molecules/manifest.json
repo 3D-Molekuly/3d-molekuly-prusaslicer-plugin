@@ -1,7 +1,7 @@
 {
 	"id": "io.github.molekuly3d.molecules",
 	"name": "3D Molecules",
-	"version": "0.4.0",
+	"version": "0.4.1",
 	"min_slicer_version": "3.0.0-alpha13",
 	"author": "7e7bee5f-91be-4839-8ade-d291fc600c71",
 	"description": "Multicolor 3D-printable molecule models (Spheres, Ball-and-Stick, Sticks) from a built-in library or pasted XYZ/MOL data. Simplified offline version of 3dmolekuly.vscht.cz, where you will find PubChem/PDB/CIF search, structure drawing, moving joints and spheres split for gluing.",

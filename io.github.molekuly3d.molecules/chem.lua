@@ -53,15 +53,95 @@ local function words(line)
     return out
 end
 
--- MOL/SDF (V2000). Parsed by whitespace, so it survives pasting into one line.
-local function parse_molfile(lines)
+local function is_coord(s) return s ~= nil and s:find("%.") ~= nil and tonumber(s) ~= nil end
+local function is_int(s) return s ~= nil and s:find("^%-?%d+$") ~= nil end
+
+-- MOL/SDF V2000 pasted without line breaks: PrusaSlicer's text field drops them, so the
+-- header, counts, atoms and bonds arrive as one stream of tokens. Atoms are recognized as
+-- "x y z Element" with decimal coordinates; the atom count found that way locates the counts
+-- line, whose bond count gives the length of each bond record.
+local function parse_molfile_tokens(text)
+    local tok = {}
+    for w in text:gsub("\\n", " "):gsub("[;|]", " "):gmatch("%S+") do
+        -- A dropped line break can glue the last field of a line to the next one.
+        local num, rest = w:match("^(%d+)(M)$")
+        if not num then num, rest = w:match("^(%d+)(%-%d+%.%d+)$") end
+        if num then
+            table.insert(tok, num); table.insert(tok, rest)
+        else
+            table.insert(tok, w)
+        end
+    end
+    local v
+    for i, w in ipairs(tok) do
+        if w:find("V2000") then v = i break end
+    end
+    if not v then M.fail("mol_counts") end
+    local stop = #tok + 1
+    for i = v + 1, #tok do
+        -- "M  END" may be glued to what follows ("END>"), as may "$$$$".
+        if (tok[i] == "M" and (tok[i + 1] or ""):find("^END")) or tok[i]:find("^>") or tok[i]:find("^%$%$%$%$") then
+            stop = i
+            break
+        end
+    end
+    local starts = {}
+    local i = v + 1
+    while i < stop do
+        if is_coord(tok[i]) and is_coord(tok[i + 1]) and is_coord(tok[i + 2])
+            and tok[i + 3] and tok[i + 3]:find("^%a%a?$") then
+            table.insert(starts, i)
+            i = i + 4
+        else
+            i = i + 1
+        end
+    end
+    local na = #starts
+    if na == 0 then M.fail("mol_counts") end
+    local mol = { atoms = {}, bonds = {} }
+    for _, s in ipairs(starts) do
+        local el = normalize_element(tok[s + 3])
+        if not el then M.fail("mol_atom", #mol.atoms + 1) end
+        table.insert(mol.atoms, { el, tonumber(tok[s]), tonumber(tok[s + 1]), tonumber(tok[s + 2]) })
+    end
+    if na == 1 then return mol end
+    local stride = starts[2] - starts[1]
+    for k = 2, na do
+        if starts[k] - starts[k - 1] ~= stride then M.fail("mol_atom", k) end
+    end
+    local first_bond = starts[na] + stride
+    local len = stop - first_bond
+    if len <= 0 then return mol end
+    -- Counts line: "na nb ..." just before V2000.
+    local nb, width
+    for j = math.max(1, v - 12), v - 2 do
+        local b = tonumber(tok[j + 1])
+        if tonumber(tok[j]) == na and is_int(tok[j + 1]) and b > 0 and len % b == 0 then
+            local w = len / b
+            if w >= 3 and w <= 7 then nb, width = b, w break end
+        end
+    end
+    if not nb then M.fail("mol_counts") end
+    for k = 0, nb - 1 do
+        local s = first_bond + k * width
+        local a, b, order = tonumber(tok[s]), tonumber(tok[s + 1]), tonumber(tok[s + 2])
+        if not (a and b and order and mol.atoms[a] and mol.atoms[b]) then M.fail("mol_bond", k + 1) end
+        -- Aromatic (4) and other query bond types are drawn as single bonds.
+        table.insert(mol.bonds, { a, b, (order >= 1 and order <= 3) and order or 1 })
+    end
+    return mol
+end
+
+-- MOL/SDF (V2000) with line breaks.
+local function parse_molfile(lines, text)
     local counts_idx
     for i, line in ipairs(lines) do
         if line:find("V2000") then counts_idx = i break end
     end
     local counts = words(lines[counts_idx])
     local na, nb = tonumber(counts[1]), tonumber(counts[2])
-    if not na or not nb then M.fail("mol_counts") end
+    -- Counts not at the start of their line: the line breaks were lost on paste.
+    if not na or not nb or #counts > 12 then return parse_molfile_tokens(text) end
     local mol = { atoms = {}, bonds = {} }
     for i = 1, na do
         local w = words(lines[counts_idx + i] or "")
@@ -135,7 +215,7 @@ function M.parse(text)
     if text:find("M%s+V30") then return parse_v3000(text) end
     local lines = split_lines(text)
     for _, line in ipairs(lines) do
-        if line:find("V2000") then return parse_molfile(lines) end
+        if line:find("V2000") then return parse_molfile(lines, text) end
     end
     return parse_xyz(lines)
 end
