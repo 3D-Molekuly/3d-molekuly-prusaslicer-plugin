@@ -12,7 +12,7 @@ moderated. The changelog comes from the GitHub release notes.
 
 1. **Author profile.** Sign in to [plugin-marketplace.prusa3d.com](https://plugin-marketplace.prusa3d.com)
    and become an author. Put the author id from *Profile* into `manifest.json` as `author`
-   (it is a placeholder `KubiV` for now).
+   (already set).
 2. **Plugin id.** It cannot be changed after the first release. The id is
    `cz.vscht.molekuly.molecules`; the namespace `cz.vscht` (or `cz.vscht.molekuly`) has to be
    proven in the console under *Namespaces*, which needs control over the `vscht.cz` domain.
