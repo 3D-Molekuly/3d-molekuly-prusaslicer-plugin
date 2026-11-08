@@ -2,45 +2,48 @@
 
 ## 0.4.0
 
-- Filamenty se přiřazují podle **CPK barev**: plugin přečte barvy filamentů na tiskárně a každému
-  prvku dá filament s nejbližší barvou (O červená, N modrá, H bílá…). Nové nastavení
-  *Přiřazení filamentů*: *Podle CPK barev filamentů* (výchozí) nebo *Postupně (C, H, O, N…)*.
-  Když barvy nejde přečíst, použije se pořadí.
+- Filaments are assigned by **CPK color**: the plugin reads the filament colors of the printer
+  and gives each element the filament with the closest color (O red, N blue, H white…). New
+  setting *Filament assignment*: *Closest CPK color* (default) or *In order (C, H, O, N…)*.
+  When the colors cannot be read, the order is used.
 
 ## 0.3.2
 
-- Vlastní struktura čte i MOL/SDF **V3000** (např. export z DataWarrior). Ze souboru s více
-  molekulami se použije první. Funguje i tehdy, když políčko při vložení smaže konce řádků.
-- Oprava: víceřádkový popisek pole *Vlastní struktura* rozbíjel vykreslení dialogu. Nápověda je
-  teď stručně v jednom řádku.
+- *Custom structure* also reads MOL/SDF **V3000** (e.g. a DataWarrior export). From a file with
+  several molecules the first one is used. It also works when the field drops line breaks on
+  paste.
+- Fix: the multi-line label of the *Custom structure* field broke the dialog rendering. The hint
+  is now a short single line.
 
 ## 0.3.1
 
-- Části modelu jsou v seznamu seřazené podle prvků (C, H, O, N…), každý prvek včetně svých
-  polovin vazeb tvoří jeden blok v pořadí čísel filamentů.
-- Nápověda k poli *Vlastní struktura* přímo v dialogu (formát XYZ s příkladem, MOL/SDF).
-- Oprava: plugin se po aktualizaci na 0.3.0 neotevřel (generator.lua volal `require` při načítání).
+- Volumes in the object list are sorted by element (C, H, O, N…): each element, including its
+  bond halves, forms one block in filament order.
+- Hint for the *Custom structure* field right in the dialog (XYZ format with an example,
+  MOL/SDF).
+- Fix: the plugin did not open after updating to 0.3.0 (`generator.lua` called `require` while
+  being loaded).
 
 ## 0.3.0
 
-- Anglická verze: položka menu *Create model (EN)* s popisky a názvy molekul podle anglického webu.
-  Menu pluginu se jmenuje *3D molekuly · 3D Molecules*.
-- Chybová hlášení (např. nerozpoznaná vlastní struktura) se zobrazí jako text na podložce.
-  PrusaSlicer chyby pluginů jinak jen zapisuje do logu, takže to vypadalo, že se nic nestalo.
-- Oprava: desetinné výchozí hodnoty (Násobící faktor vazby 0,4) mohly dorazit jako 0 a plugin
-  skončil chybou. Nulové nebo chybějící faktory se teď nahradí výchozími hodnotami webu.
+- English version: the menu entry *Create model (EN)* with labels and molecule names taken from
+  the English web app. The plugin menu is called *3D molekuly · 3D Molecules*.
+- Error messages (e.g. an unrecognized custom structure) are shown as text on the bed.
+  PrusaSlicer only writes plugin errors to the log, so it looked as if nothing happened.
+- Fix: decimal defaults (*Bond Diameter Factor* 0.4) could arrive as 0 and the plugin failed.
+  Zero or missing factors are now replaced with the web app's defaults.
 
 ## 0.2.0
 
-- Vícebarevný model i na tiskárně s jedním nástrojem: každý prvek dostane vlastní filament,
-  nové nastavení *Počet filamentů*.
-- Nové nastavení *Největší rozměr [mm]*: model se zvětší nebo zmenší na zadanou velikost.
-- Násobné vazby zůstávají uvnitř atomů, aby se při tisku neoddělily.
-- Názvy typů zobrazení a nastavení sjednocené s webem 3dmolekuly.vscht.cz.
-- Oprava: celý model leží na podložce (první atom se dříve posunul nahoru).
-- Výrazně menší projekt: koule a válce mají rozlišení podle velikosti.
+- Multicolor model even on a single-tool printer: every element gets its own filament, new
+  setting *Number of filaments*.
+- New setting *Largest dimension [mm]*: the model is scaled to the given size.
+- Multiple bonds stay inside the atoms so they do not come apart when printed.
+- Model type and setting names aligned with the web app 3dmolekuly.vscht.cz.
+- Fix: the whole model sits on the bed (the first atom used to be shifted up).
+- Much smaller projects: spheres and cylinders get a resolution based on their size.
 
 ## 0.1.0
 
-- První verze: knihovna 15 molekul, vlastní struktura XYZ/MOL, typy Spheres, Ball-and-Stick
-  a Sticks.
+- First version: library of 15 molecules, custom XYZ/MOL structure, Spheres, Ball-and-Stick and
+  Sticks model types.
