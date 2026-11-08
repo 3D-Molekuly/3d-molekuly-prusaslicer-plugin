@@ -1,0 +1,4 @@
+# Never commit the signing key: it goes into the repository secrets.
+*.pem
+*.key
+.DS_Store

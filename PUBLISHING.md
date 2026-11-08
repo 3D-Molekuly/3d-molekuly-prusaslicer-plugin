@@ -33,15 +33,15 @@ Changelog tvoří poznámky k vydání na GitHubu.
    gh secret set PRUSA_SLICER_PLUGIN_MARKETPLACE_SIGNING_KEY --env release < private_key.pem
    ```
 
-6. **Workflow.** Zkopírujte `.github/workflows/release.yml` z ukázkového repozitáře a nastavte
-   `path: prusaslicer-plugin/cz.vscht.3dmolekuly.molecules`.
+6. **Workflow.** `.github/workflows/release.yml` (převzatý z ukázkového repozitáře) už je
+   v repozitáři nastavený na složku `cz.vscht.3dmolekuly.molecules`.
 
 ## Vydání nové verze
 
 Zvyšte `version` v `manifest.json`, commitněte a vytvořte GitHub release s tagem stejné verze:
 
 ```bash
-gh release create v0.2.0 --title "3D molekuly 0.2.0" --notes-file prusaslicer-plugin/CHANGELOG.md
+gh release create v0.2.0 --title "3D molekuly 0.2.0" --notes-file CHANGELOG.md
 ```
 
 Předběžná verze (`--prerelease`) jde do beta kanálu. Každé vydání před zveřejněním projde

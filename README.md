@@ -161,15 +161,35 @@ be named after atoms with the current plugin API.
 
 ```
 prusaslicer-plugin/
-├── README.md                          this file (not shipped)
-├── PUBLISHING.md                      how to publish to the Plugin Marketplace (not shipped)
+├── README.md, CHANGELOG.md, PUBLISHING.md  docs (not shipped)
+├── .github/workflows/
+│   ├── check.yml                      tests + dry-run bundle on every push
+│   └── release.yml                    signs and publishes on a GitHub release
+├── tests/                             run.sh, tests against a mocked PrusaSlicer API
+├── tools/                             sdf2lua.py + PubChem 3D SDF for the built-in library
 └── cz.vscht.3dmolekuly.molecules/     the plugin bundle: everything in it ships
     ├── manifest.json
     ├── molecule_cs.lua, molecule_en.lua  menu entries: dialog labels per language
     ├── generator.lua                  model assembly and error messages (PrusaSlicer API)
-    ├── chem.lua                       parsing, bond inference, geometry (pure Lua)
+    ├── chem.lua                       parsing, bond inference, geometry, CPK colors (pure Lua)
     └── library.lua                    built-in molecules, generated from PubChem 3D SDF
 ```
+
+Run the tests (needs `lua5.4` and/or `luajit`):
+
+```bash
+tests/run.sh
+```
+
+Regenerate the built-in library after changing `tools/pubchem/` or the names in `tools/sdf2lua.py`
+(keep the menu lists in `molecule_cs.lua` and `molecule_en.lua` in sync):
+
+```bash
+python3 tools/sdf2lua.py tools/pubchem cz.vscht.3dmolekuly.molecules/library.lua
+```
+
+Try the plugin locally: copy `cz.vscht.3dmolekuly.molecules` to
+`~/Library/Application Support/PrusaSlicer3/lua/` (or `PrusaSlicer3-dev`) and restart PrusaSlicer.
 
 `chem.lua` has no PrusaSlicer dependencies, so the geometry can be tested with a plain
 `lua` interpreter. The API reference is `src/slic3r-shared/src/Slic3r/App/Lua/ProjectApi.cpp`
