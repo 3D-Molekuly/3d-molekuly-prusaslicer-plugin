@@ -51,6 +51,13 @@ becomes public.
 
 ## Catalogue texts
 
+Ready to paste into the author console. The name, short description and links are taken from
+`manifest.json` on the first release.
+
+**Name (manifest `name`):**
+
+> 3D Molecules
+
 **Short description (manifest `description`):**
 
 > Multicolor 3D-printable molecule models (Spheres, Ball-and-Stick, Sticks) from a built-in
@@ -59,14 +66,60 @@ becomes public.
 
 **Long description (author console):**
 
-> Create a multicolor, print-ready 3D model of a molecule right in PrusaSlicer. Pick one of 15
-> molecules (water, caffeine, aspirin, glucose…) or paste your own structure in XYZ or MOL/SDF
-> format. Choose Spheres, Ball-and-Stick or Sticks with the same settings as the web app
-> 3dmolekuly.vscht.cz (UCT Prague and the First Faculty of Medicine, Charles University). Every
-> element gets its own filament, matched to its CPK color.
+> **Print molecules in color, straight from PrusaSlicer.**
 >
-> The full version at **3dmolekuly.vscht.cz** also offers PubChem search, PDB and CIF import,
-> structure drawing, moving joints and spheres split for gluing.
+> 3D Molecules builds a print-ready model of a molecule on your bed in a few clicks. Every
+> element gets its own filament, matched to its CPK color: oxygen goes to your red filament,
+> nitrogen to blue, hydrogen to white. Ideal for chemistry and biology classes, open days and
+> anyone who wants to hold a molecule in their hand.
+>
+> **What you get**
+>
+> - 15 ready-made molecules with real 3D geometry from PubChem: water, methane, ammonia, carbon
+>   dioxide, ethene, ethyne, ethanol, acetic acid, sulfuric acid, cyclohexane, benzene, glucose,
+>   paracetamol, aspirin and caffeine.
+> - Your own structures: paste XYZ coordinates or a MOL/SDF file (V2000 or V3000), e.g. a 3D SDF
+>   downloaded from PubChem.
+> - Three model types: Spheres (space-filling), Ball-and-Stick with double and triple bonds,
+>   and Sticks.
+> - Scale in mm per ångström or a target size in mm, atom and bond thickness, hydrogens on or
+>   off, and a flattened bottom for better bed adhesion.
+> - Multicolor out of the box on MMU3, INDX and XL multi-tool printers; set up your filaments
+>   first and the plugin picks the closest color for each element.
+> - Czech and English menu entries.
+>
+> **Want more?** The full web app at **3dmolekuly.vscht.cz** also searches PubChem, PDB and the
+> Crystallography Open Database, imports PDB and CIF files, lets you draw a structure, and
+> creates print-in-place moving joints and spheres split for gluing.
+>
+> Made by the 3D Molecules team at UCT Prague and the First Faculty of Medicine, Charles
+> University.
+
+**Category:** Education
+
+**Tags / keywords (if the console asks for them):** chemistry, molecule, education, science,
+multicolor, MMU, ball-and-stick, CPK, PubChem
+
+**Screenshot captions:**
+
+1. *Caffeine as a Ball-and-Stick model, colored by element on a five-tool Prusa XL.*
+2. *The plugin dialog: pick a molecule, model type, scale and filament assignment.*
+3. *Paste your own structure in XYZ or MOL/SDF format.*
+4. *Space-filling (Spheres) and Sticks models of the same molecule.*
+
+**Release notes for the first release (v0.4.0):**
+
+> First public release of 3D Molecules for PrusaSlicer 3.0.
+>
+> - Built-in library of 15 molecules with PubChem 3D geometry.
+> - Custom structures in XYZ and MOL/SDF (V2000 and V3000).
+> - Spheres, Ball-and-Stick and Sticks models with the same settings as 3dmolekuly.vscht.cz.
+> - Multicolor: elements are matched to your filaments by CPK color.
+> - Czech and English menu entries.
+>
+> Known issues in PrusaSlicer 3.0 alpha: pasting a very long text into *Custom structure* breaks
+> the dialog rendering, so paste one molecule at a time; restart PrusaSlicer after updating the
+> plugin.
 
 **Long description in Czech (if the console allows localized texts):**
 
