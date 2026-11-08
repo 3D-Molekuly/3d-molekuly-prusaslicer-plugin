@@ -13,10 +13,11 @@ moderated. The changelog comes from the GitHub release notes.
 1. **Author profile.** Sign in to [plugin-marketplace.prusa3d.com](https://plugin-marketplace.prusa3d.com)
    and become an author. Put the author id from *Profile* into `manifest.json` as `author`
    (it is a placeholder `KubiV` for now).
-2. **Plugin id.** It cannot be changed after the first release. The current
-   `cz.vscht.3dmolekuly.molecules` requires proving ownership of the domain
-   `3dmolekuly.vscht.cz` in the console under *Namespaces*. Without that,
-   `io.github.<account>.molecules` can be used.
+2. **Plugin id.** It cannot be changed after the first release. The id is
+   `cz.vscht.molekuly.molecules`; the namespace `cz.vscht` (or `cz.vscht.molekuly`) has to be
+   proven in the console under *Namespaces*, which needs control over the `vscht.cz` domain.
+   No part of the id may start with a digit: PrusaSlicer rejects `cz.vscht.3dmolekuly.…` and
+   `io.github.3d-molekuly.…` as "not in reverse DNS form".
 3. **Signing key.** Create an RSA key pair and register `public_key.pem` in the console under
    *Signing keys*. Never commit the private key (`.gitignore` already ignores `*.pem`).
 
@@ -35,7 +36,7 @@ moderated. The changelog comes from the GitHub release notes.
    ```
 
 6. **Workflow.** `.github/workflows/release.yml` (taken from the example repository) is already
-   set up for the `cz.vscht.3dmolekuly.molecules` folder.
+   set up for the `cz.vscht.molekuly.molecules` folder.
 
 ## Releasing a new version
 
@@ -48,6 +49,22 @@ gh release create v0.4.0 --title "3D Molecules 0.4.0" --notes-file CHANGELOG.md
 
 A pre-release (`--prerelease`) goes to the beta channel. Every release is reviewed before it
 becomes public.
+
+## Uploading a bundle manually
+
+The console's *Publish* page accepts a signed zip with `manifest.json`, `manifest.txt` and
+`manifest.sig` at its root (flat layout, no folder inside). A plain zip of the plugin folder or of
+the repository is rejected with "bundle is missing manifest.json at its root". PrusaSlicer's CLI
+builds a correct one:
+
+```bash
+PrusaSlicer plugin sign -P /path/to/private_key.pem cz.vscht.molekuly.molecules
+```
+
+On macOS the binary is `/Applications/PrusaSlicer-<version>.app/Contents/MacOS/PrusaSlicer`. The
+command writes `manifest.txt` and `manifest.sig` into the folder and `cz.vscht.molekuly.molecules.zip`
+next to it; upload that zip. Both are ignored by `.gitignore`, so delete them or leave them
+untracked. The key used must be registered under *Signing keys*.
 
 ## Catalogue texts
 

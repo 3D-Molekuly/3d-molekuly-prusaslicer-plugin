@@ -1,4 +1,25 @@
-# Never commit the signing key: it goes into the repository secrets.
+# Signing keys: never commit them, the private key goes into the GitHub environment secret.
 *.pem
 *.key
+*.sig
+
+# Signed bundles built locally with `PrusaSlicer plugin sign` (CI builds its own).
+*.zip
+cz.vscht.molekuly.molecules/manifest.txt
+
+# Lua tooling
+.luarc.json
+luacov.*.out
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+*~
 .DS_Store
+Thumbs.db

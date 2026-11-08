@@ -2,6 +2,10 @@
 
 ## 0.4.0
 
+- Plugin id changed to `cz.vscht.molekuly.molecules`: PrusaSlicer rejects id parts that start
+  with a digit, so `cz.vscht.3dmolekuly.molecules` could not be signed. Remove the old
+  `cz.vscht.3dmolekuly.molecules` folder from the plugin folder when updating a manual install.
+- License: GPL-3.0, the same as the web app.
 - Filaments are assigned by **CPK color**: the plugin reads the filament colors of the printer
   and gives each element the filament with the closest color (O red, N blue, H white…). New
   setting *Filament assignment*: *Closest CPK color* (default) or *In order (C, H, O, N…)*.

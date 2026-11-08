@@ -3,7 +3,7 @@
 # interpreter, for both possible origins of api.make_cylinder (base or center).
 set -e
 cd "$(dirname "$0")/.."
-PLUGIN="$PWD/cz.vscht.3dmolekuly.molecules"
+PLUGIN="$PWD/cz.vscht.molekuly.molecules"
 ran=0
 for lua in lua5.4 luajit; do
     command -v "$lua" >/dev/null || continue

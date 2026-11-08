@@ -25,7 +25,7 @@ jobs:
       - id: bundle
         uses: prusa3d/plugin-marketplace-publish@v1
         with:
-          path: cz.vscht.3dmolekuly.molecules
+          path: cz.vscht.molekuly.molecules
           private-key: ${{ env.KEY }}
           dry-run: 'true'
       - run: unzip -l "${{ steps.bundle.outputs.bundle }}"
