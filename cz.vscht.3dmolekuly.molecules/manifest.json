@@ -1,0 +1,14 @@
+{
+	"id": "cz.vscht.3dmolekuly.molecules",
+	"name": "3D molekuly",
+	"version": "0.3.1",
+	"min_slicer_version": "3.0.0-alpha13",
+	"author": "KubiV",
+	"description": "Multicolor 3D-printable molecule models (Spheres, Ball-and-Stick, Sticks) from a built-in library or pasted XYZ/MOL data. Simplified offline version of 3dmolekuly.vscht.cz, where you will find PubChem/PDB/CIF search, structure drawing, moving joints and spheres split for gluing.",
+	"license": "MIT",
+	"category": "Education",
+	"web": "https://3dmolekuly.vscht.cz",
+	"required_apis": {
+		"project.plugin": "1.0.0"
+	}
+}
