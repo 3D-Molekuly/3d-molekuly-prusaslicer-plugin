@@ -1,5 +1,5 @@
 {
-	"id": "cz.vscht.molekuly.molecules",
+	"id": "io.github.molekuly3d.molecules",
 	"name": "3D Molecules",
 	"version": "0.4.0",
 	"min_slicer_version": "3.0.0-alpha13",

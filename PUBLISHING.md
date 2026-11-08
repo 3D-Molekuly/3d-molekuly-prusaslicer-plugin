@@ -14,10 +14,12 @@ moderated. The changelog comes from the GitHub release notes.
    and become an author. Put the author id from *Profile* into `manifest.json` as `author`
    (already set).
 2. **Plugin id.** It cannot be changed after the first release. The id is
-   `cz.vscht.molekuly.molecules`; the namespace `cz.vscht` (or `cz.vscht.molekuly`) has to be
-   proven in the console under *Namespaces*, which needs control over the `vscht.cz` domain.
-   No part of the id may start with a digit: PrusaSlicer rejects `cz.vscht.3dmolekuly.…` and
-   `io.github.3d-molekuly.…` as "not in reverse DNS form".
+   `io.github.molekuly3d.molecules`: the namespace `io.github.<repository owner>` needs no
+   verification, but only GitHub Actions in a repository owned by `molekuly3d` can publish it
+   (trusted publishing, step 4). A domain id such as `cz.vscht.…` would need the domain proven
+   under *Namespaces*. No part of the id may start with a digit: PrusaSlicer rejects
+   `cz.vscht.3dmolekuly.…` and `io.github.3d-molekuly.…` as "not in reverse DNS form", which is
+   why the GitHub organization was renamed from `3D-Molekuly` to `molekuly3d`.
 3. **Signing key.** Create an RSA key pair and register `public_key.pem` in the console under
    *Signing keys*. Never commit the private key (`.gitignore` already ignores `*.pem`).
 
@@ -26,8 +28,11 @@ moderated. The changelog comes from the GitHub release notes.
    openssl rsa -pubout -in private_key.pem -out public_key.pem
    ```
 
-4. **Trusted publishing.** In the console, add the plugin id, `<owner>/<repo>`, the workflow
-   `release.yml` and the environment `release`.
+4. **Trusted publishing.** In the console under *Trusted publishing*, add:
+   - Plugin id: `io.github.molekuly3d.molecules`
+   - GitHub repository: `molekuly3d/3d-molekuly-prusaslicer-plugin`
+   - Workflow file: `release.yml`
+   - Environment: `release`
 5. **`release` environment on GitHub.** Allow only `v*` tags, add yourself as a required
    reviewer and store the key there:
 
@@ -36,7 +41,7 @@ moderated. The changelog comes from the GitHub release notes.
    ```
 
 6. **Workflow.** `.github/workflows/release.yml` (taken from the example repository) is already
-   set up for the `cz.vscht.molekuly.molecules` folder.
+   set up for the `io.github.molekuly3d.molecules` folder.
 
 ## Releasing a new version
 
@@ -52,17 +57,21 @@ becomes public.
 
 ## Uploading a bundle manually
 
+Only for ids in a namespace verified under *Namespaces*. An `io.github.*` id such as this
+plugin's can only be published from GitHub Actions (the console rejects a manual upload with
+"outside your namespaces"), so use a GitHub release instead.
+
 The console's *Publish* page accepts a signed zip with `manifest.json`, `manifest.txt` and
 `manifest.sig` at its root (flat layout, no folder inside). A plain zip of the plugin folder or of
 the repository is rejected with "bundle is missing manifest.json at its root". PrusaSlicer's CLI
 builds a correct one:
 
 ```bash
-PrusaSlicer plugin sign -P /path/to/private_key.pem cz.vscht.molekuly.molecules
+PrusaSlicer plugin sign -P /path/to/private_key.pem io.github.molekuly3d.molecules
 ```
 
 On macOS the binary is `/Applications/PrusaSlicer-<version>.app/Contents/MacOS/PrusaSlicer`. The
-command writes `manifest.txt` and `manifest.sig` into the folder and `cz.vscht.molekuly.molecules.zip`
+command writes `manifest.txt` and `manifest.sig` into the folder and `io.github.molekuly3d.molecules.zip`
 next to it; upload that zip. Both are ignored by `.gitignore`, so delete them or leave them
 untracked. The key used must be registered under *Signing keys*.
 

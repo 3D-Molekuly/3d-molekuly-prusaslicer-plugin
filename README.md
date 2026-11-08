@@ -4,7 +4,7 @@
 
 **Multicolor, print-ready 3D models of molecules, built right inside PrusaSlicer.**
 
-[![Check](https://github.com/3D-Molekuly/3d-molekuly-prusaslicer-plugin/actions/workflows/check.yml/badge.svg)](https://github.com/3D-Molekuly/3d-molekuly-prusaslicer-plugin/actions/workflows/check.yml)
+[![Check](https://github.com/molekuly3d/3d-molekuly-prusaslicer-plugin/actions/workflows/check.yml/badge.svg)](https://github.com/molekuly3d/3d-molekuly-prusaslicer-plugin/actions/workflows/check.yml)
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 [![PrusaSlicer 3.0](https://img.shields.io/badge/PrusaSlicer-3.0%20alpha-fa6831.svg)](https://github.com/prusa3d/PrusaSlicer)
 [![Web app](https://img.shields.io/badge/web%20app-3dmolekuly.vscht.cz-2ea44f.svg)](https://3dmolekuly.vscht.cz)
@@ -62,7 +62,7 @@ element assigned to the filament closest to its CPK color.
 **From the Plugin Marketplace** (once published): in PrusaSlicer open the Plugin Marketplace,
 search for *3D Molecules* and click *Install*.
 
-**Manually:** copy the [`cz.vscht.molekuly.molecules`](cz.vscht.molekuly.molecules) folder to
+**Manually:** copy the [`io.github.molekuly3d.molecules`](io.github.molekuly3d.molecules) folder to
 the PrusaSlicer plugin folder and restart PrusaSlicer. PrusaSlicer opens the folder for you via
 *Show user plugins folder*; on macOS it is `~/Library/Application Support/PrusaSlicer3/lua/`
 (`PrusaSlicer3-dev` for development builds).
@@ -160,13 +160,13 @@ PrusaSlicer 3.0 is an alpha. Issues we know about:
 - **Plugin errors are only logged** (`<PrusaSlicer3 folder>/shared_runtime/log.txt`), so the
   plugin prints them on the bed.
 
-Found another one? Please [open an issue](https://github.com/3D-Molekuly/3d-molekuly-prusaslicer-plugin/issues).
+Found another one? Please [open an issue](https://github.com/molekuly3d/3d-molekuly-prusaslicer-plugin/issues).
 
 ## Development
 
 ```
 3d-molekuly-prusaslicer-plugin/
-├── cz.vscht.molekuly.molecules/       the plugin bundle: everything in it ships
+├── io.github.molekuly3d.molecules/       the plugin bundle: everything in it ships
 │   ├── manifest.json
 │   ├── molecule_cs.lua, molecule_en.lua  menu entries: dialog labels per language
 │   ├── generator.lua                  model assembly and error messages (PrusaSlicer API)
@@ -191,7 +191,7 @@ Regenerate the built-in library after changing `tools/pubchem/` or the names in
 `tools/sdf2lua.py` (keep the menu lists in `molecule_cs.lua` and `molecule_en.lua` in sync):
 
 ```bash
-python3 tools/sdf2lua.py tools/pubchem cz.vscht.molekuly.molecules/library.lua
+python3 tools/sdf2lua.py tools/pubchem io.github.molekuly3d.molecules/library.lua
 ```
 
 `chem.lua` has no PrusaSlicer dependencies, so the geometry can be tested with a plain Lua
@@ -203,7 +203,7 @@ in the PrusaSlicer repository. Publishing to the Plugin Marketplace is described
 ## License
 
 Released under the [GNU General Public License v3.0](LICENSE), the same license as the
-[3D Molecules web app](https://github.com/3D-Molekuly/3D-Print-Molecules). Molecule geometries
+[3D Molecules web app](https://github.com/molekuly3d/3D-Print-Molecules). Molecule geometries
 in the built-in library come from [PubChem](https://pubchem.ncbi.nlm.nih.gov/).
 
 Made by the 3D Molecules team at UCT Prague and the First Faculty of Medicine, Charles

@@ -5,7 +5,7 @@
 
 # Signed bundles built locally with `PrusaSlicer plugin sign` (CI builds its own).
 *.zip
-cz.vscht.molekuly.molecules/manifest.txt
+io.github.molekuly3d.molecules/manifest.txt
 
 # Lua tooling
 .luarc.json
